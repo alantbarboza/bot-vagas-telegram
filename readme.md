@@ -100,6 +100,40 @@ Exemplo:
 
 ---
 
+## Instalação
+
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/alantbarboza/bot-vagas-telegram.git
+cd bot-vagas-telegram
+```
+
+### 2. Instale as dependências
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+API_KEY=sua_api_key
+```
+
+Onde:
+* `API_KEY`: chave utilizada para acesso à API utilizada pelo sistema.
+
+### 4. Execute o projeto
+
+```bash
+python main.py
+```
+
+---
+
 ## Tecnologias utilizadas
 
 * Python
