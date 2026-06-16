@@ -148,7 +148,7 @@ python main.py
 ## Estrutura do projeto
 
 ```text
-bot-procurar-vaga/
+bot-vagas-telegram/
 
 ├── bot/
 ├── vagas/
