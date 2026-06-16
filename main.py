@@ -1,9 +1,15 @@
 from dotenv import load_dotenv
 from os import getenv
+
 from aiogram import Dispatcher, Router
 from aiogram.types import Message
-from asyncio import run, sleep, CancelledError, create_task
-from logging import info, warning, critical, basicConfig, INFO, error, getLogger, WARNING
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler
+
+from aiohttp import web
+from asyncio import run, CancelledError, create_task, Event
+
+from logging import info, warning, basicConfig, INFO, error, getLogger, WARNING
+
 from bot.comandos import verificar_comando, salvar_mensagem
 from vagas.filtros import usuario_cadastrado
 from bot.bot_instance import bot
@@ -19,14 +25,12 @@ getLogger("aiogram.event").setLevel(WARNING)
 
 load_dotenv()
 TOKEN = getenv("API_KEY")
-
+WEBHOOK_PATH = "/webhook"
+BASE_URL = getenv("WEBHOOK_URL")
 
 dp = Dispatcher()
-
 router = Router()
-
 dp.include_router(router)
-
 
 @router.message()
 async def mensagens_router(message: Message):
@@ -37,41 +41,53 @@ async def mensagens_router(message: Message):
     await salvar_mensagem(message)
     await verificar_comando(message, message.chat.type)
 
+
+async def healthcheck(request):
+    return web.Response(text="Bot online")
+
+async def iniciar_webhook():
+    app = web.Application()
+
+    app.router.add_get("/", healthcheck)
+
+    SimpleRequestHandler(
+        dispatcher=dp,
+        bot=bot
+    ).register(app, path=WEBHOOK_PATH)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+
+    port = int(getenv("PORT", 10000))
+
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+    info(f"Servidor rodando na porta {port}")
+
+    await bot.delete_webhook(drop_pending_updates=True)
+    await bot.set_webhook(f"{BASE_URL}{WEBHOOK_PATH}")
+
+
 async def main():
     info("Bot iniciado...")
 
     create_task(execucao_automatica.iniciar_agendador())
 
-    tentativas = 0
-    MAX_TENTATIVAS = 3
-
     try:
-        while tentativas < MAX_TENTATIVAS:
-            try:
-                await dp.start_polling(bot)
+        await iniciar_webhook()
+        await Event().wait()
 
-                info("Polling encerrado normalmente.")
-                break
+    except (KeyboardInterrupt, CancelledError):
+        warning("Bot finalizado manualmente.")
 
-            except (KeyboardInterrupt, CancelledError):
-                warning("Bot finalizado manualmente.")
-                break
-
-            except Exception as e:
-                tentativas += 1
-
-                error(f"Erro inesperado: {e}\n"
-                      f"Tentativa de reconexão ({tentativas}/{MAX_TENTATIVAS})...")
-
-                if tentativas >= MAX_TENTATIVAS:
-                    critical( "Número máximo de tentativas atingido. Encerrando bot.")
-                    break
-
-                await sleep(10)
+    except Exception as e:
+        error(f"Erro inesperado: {e}")
 
     finally:
         await bot.session.close()
         info("Sessão do bot fechada.")
+
 
 if __name__ == "__main__":
     run(main())

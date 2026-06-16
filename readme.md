@@ -121,10 +121,14 @@ Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 API_KEY=sua_api_key
+PORT=10000
+WEBHOOK_URL=https://seu-servico.onrender.com
 ```
 
 Onde:
 * `API_KEY`: chave utilizada para acesso à API utilizada pelo sistema.
+* `PORT`: porta usada pelo servidor HTTP.
+* `WEBHOOK_URL`: URL pública onde o bot está hospedado (Render, Railway, etc.)
 
 ### 4. Execute o projeto
 
@@ -137,10 +141,10 @@ python main.py
 ## Tecnologias utilizadas
 
 * Python
-* Aiogram
-* Playwright
-* AsyncIO
-* JSON
+* Aiogram (Telegram Bot Framework)
+* aiohttp (Servidor Web / Webhook)
+* Playwright (Web Scraping)
+* AsyncIO (Programação assíncrona)
 * Telegram Bot API
 
 ---
