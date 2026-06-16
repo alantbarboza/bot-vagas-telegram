@@ -1,0 +1,127 @@
+# Bot de Busca Automatizada de Vagas
+
+## Sobre o projeto
+
+Bot desenvolvido em Python para realizar a busca automatizada de vagas de tecnologia em múltiplos portais de emprego, aplicando filtros personalizados para cada usuário e enviando os resultados diretamente pelo Telegram.
+
+O objetivo do projeto é reduzir o tempo gasto procurando vagas manualmente, centralizando oportunidades relevantes em um único local.
+
+Este projeto foi desenvolvido com foco em automação, web scraping, integração com APIs, programação assíncrona e organização de aplicações Python.
+
+
+---
+
+## Funcionalidades
+
+* Busca automática de vagas em múltiplos sites.
+* Busca manual através de comandos do Telegram.
+* Filtros personalizados por usuário.
+* Remoção de vagas duplicadas.
+* Filtragem por período de publicação.
+* Classificação de vagas por pontuação de compatibilidade.
+* Envio automático de vagas em horários programados.
+* Controle de permissões para grupos do Telegram.
+* Gerenciamento dinâmico de filtros sem necessidade de alterar o código.
+
+---
+
+## Sites monitorados
+
+Atualmente o bot realiza buscas nos seguintes portais:
+
+* LinkedIn
+* Nerdin
+* Sólides
+* Empregos.com.br
+* InfoJobs
+* 99Jobs
+
+Cada portal possui um extrator independente para facilitar manutenção e futuras expansões.
+
+---
+
+## Como funciona a extração
+
+1. O bot reúne todos os termos de busca cadastrados pelos usuários.
+2. Realiza buscas nos portais configurados.
+3. Coleta informações como:
+   * Título da vaga
+   * Empresa
+   * Localização
+   * Data de publicação
+   * Link da vaga
+4. Remove vagas duplicadas.
+5. Filtra vagas fora do período configurado.
+6. Avalia cada vaga utilizando critérios definidos pelo usuário.
+7. Ordena os resultados pela pontuação obtida.
+8. Envia apenas as vagas compatíveis via Telegram.
+
+---
+
+## Sistema de pontuação
+
+Cada vaga recebe pontos de acordo com a compatibilidade com os filtros do usuário:
+
+* Nível profissional
+* Cargo
+* Tecnologias
+* Localização
+
+Vagas contendo palavras bloqueadas são descartadas automaticamente.
+
+---
+
+## Comandos disponíveis
+
+### Busca e monitoramento
+
+* `/vagas` - Executa a busca manual de vagas.
+* `/proxima_execucao` - Exibe a próxima execução automática.
+* `/online` - Mostra o tempo de atividade do bot.
+
+### Gerenciamento de filtros
+
+* `/filtros` - Exibe os filtros atuais.
+* `/add campo valor` - Adiciona filtros.
+* `/rem campo valor` - Remove filtros.
+
+Exemplo:
+
+```text
+/add tecnologias python
+/rem tecnologias java
+```
+
+### Utilidades
+
+* `/comandos` - Lista todos os comandos.
+* `/meu_id` - Exibe o ID do usuário.
+* `/limpar` - Remove mensagens armazenadas pelo bot.
+
+---
+
+## Tecnologias utilizadas
+
+* Python
+* Aiogram
+* Playwright
+* AsyncIO
+* JSON
+* Telegram Bot API
+
+---
+
+## Estrutura do projeto
+
+```text
+bot-procurar-vaga/
+
+├── bot/
+├── vagas/
+├── agendamento/
+├── utils/
+├── imagens/
+└── main.py
+```
+
+
