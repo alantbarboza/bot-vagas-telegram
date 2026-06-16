@@ -1,15 +1,17 @@
 from re import search, escape
 from datetime import datetime, timedelta
 from json import load, dump
+import os
 
-
-OUTPUT_DIR = "output"
 PERIODO_DIAS = 2
 MAX_PAGINAS = 7
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USUARIOS_PATH = os.path.join(BASE_DIR, "usuarios.json")
+
 def carregar_usuarios():
     with open(
-        "usuarios.json",
+        USUARIOS_PATH,
         "r",
         encoding="utf-8"
     ) as arquivo:
@@ -52,7 +54,7 @@ def atualizar_dados_usuario(user_id, campo, valor, adicionar=True):
             usuario[campo].remove(valor)
 
     with open(
-        "usuarios.json",
+        USUARIOS_PATH,
         "w",
         encoding="utf-8"
     ) as arquivo:
