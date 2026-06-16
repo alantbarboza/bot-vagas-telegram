@@ -4,12 +4,11 @@ from time import time
 from logging import info, warning, error
 from vagas.filtros import obter_filtros_usuario, atualizar_dados_usuario
 from datetime import datetime
-from bot.mensagens import enviar_mensagem
+from bot.mensagens import enviar_mensagem, mensagens
 from bot.bot_instance import bot
 from vagas.envio import enviar_vagas
 import agendamento.execucao_automatica as execucao_automatica
 
-mensagens = {}
 LIMITE_MENSAGENS = 1000
 
 comandos_em_andamento = set()

@@ -2,7 +2,7 @@ from aiogram.types import LinkPreviewOptions
 from logging import info, error
 from bot.bot_instance import bot
 
-mensagens = {}
+mensagens = {} 
 MAX_TAMANHO = 4000
 
 
