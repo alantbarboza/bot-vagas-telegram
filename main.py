@@ -76,15 +76,16 @@ async def evitar_inatividade():
     while True:
         try:
             async with ClientSession() as session:
-                await session.get(BASE_URL)
+                async with session.get(BASE_URL) as resp:
+                    await resp.read()
 
             info("Verificação de inatividade executada.")
 
         except Exception as e:
             warning(f"Erro na verificação de inatividade: {e}")
 
-        await sleep(300)  
-
+        await sleep(300)
+        
 async def main():
     info("Bot iniciado...")
 
