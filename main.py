@@ -1,24 +1,29 @@
 from dotenv import load_dotenv
-from os import getenv
+from os import getenv, name
+from sys import stdout
 
 from aiogram import Dispatcher, Router
 from aiogram.types import Message
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler
 
-from aiohttp import web
-from asyncio import run, CancelledError, create_task, Event
+from aiohttp import web, ClientSession
+from asyncio import run, CancelledError, create_task, Event, sleep
 
-from logging import info, warning, basicConfig, INFO, error, getLogger, WARNING
+from logging import info, warning, basicConfig, INFO, error, getLogger, WARNING, StreamHandler
 
 from bot.comandos import verificar_comando, salvar_mensagem
 from vagas.filtros import usuario_cadastrado
 from bot.bot_instance import bot
 import agendamento.execucao_automatica as execucao_automatica
 
+if name == "nt":
+    stdout.reconfigure(encoding="utf-8")
+
 basicConfig(
     level=INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
-    datefmt="%d/%m/%Y %H:%M:%S"
+    datefmt="%d/%m/%Y %H:%M:%S",
+    handlers=[StreamHandler(stdout)]
 )
 
 getLogger("aiogram.event").setLevel(WARNING)
@@ -40,7 +45,6 @@ async def mensagens_router(message: Message):
 
     await salvar_mensagem(message)
     await verificar_comando(message, message.chat.type)
-
 
 async def healthcheck(request):
     return web.Response(text="Bot online")
@@ -68,11 +72,24 @@ async def iniciar_webhook():
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_webhook(f"{BASE_URL}{WEBHOOK_PATH}")
 
+async def evitar_inatividade():
+    while True:
+        try:
+            async with ClientSession() as session:
+                await session.get(BASE_URL)
+
+            info("Verificação de inatividade executada.")
+
+        except Exception as e:
+            warning(f"Erro na verificação de inatividade: {e}")
+
+        await sleep(300)  
 
 async def main():
     info("Bot iniciado...")
 
     create_task(execucao_automatica.iniciar_agendador())
+    create_task(evitar_inatividade())
 
     try:
         await iniciar_webhook()
