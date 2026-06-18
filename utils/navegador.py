@@ -3,9 +3,9 @@ def criar_navegador_humano(playwright):
     browser = playwright.chromium.launch(
         headless=True,
         args=[
-            "--disable-blink-features=AutomationControlled",
+            "--no-sandbox",
             "--disable-dev-shm-usage",
-            "--no-sandbox"
+            "--disable-gpu"
         ]
     )
 
