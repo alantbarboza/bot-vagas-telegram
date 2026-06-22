@@ -23,6 +23,13 @@ def extrair_linkedin(page, termos_busca):
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
                 page.wait_for_timeout(3000)
 
+
+                ##########teste render##########
+                html = page.content()
+                info(f"HTML LinkedIn (primeiros 5000 caracteres):\n{html[:5000]}")
+                ##########teste render##########
+
+
                 cards = page.query_selector_all(
                     'a[href*="/jobs/view/"]'
                 )
