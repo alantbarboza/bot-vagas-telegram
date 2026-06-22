@@ -1,7 +1,7 @@
 from asyncio import sleep, to_thread
 from logging import error, info
 from vagas.buscador import buscar_vagas
-from vagas.filtros import contar_vagas, carregar_usuarios, filtrar_vaga
+from vagas.filtros import contar_vagas, carregar_usuarios, filtrar_vaga, obter_termos_busca
 from bot.mensagens import dividir_texto, enviar_mensagem
 
 def formatar_vaga(vaga):
@@ -32,7 +32,20 @@ async def enviar_vagas(chat_id_destino=None):
         for chat_id in usuarios.keys():
             await enviar_mensagem(int(chat_id), "Pesquisando vagas...")
 
-        vagas = await to_thread(buscar_vagas)
+        if chat_id_destino:
+            usuario = usuarios[chat_id_destino]
+
+            vagas = await to_thread(
+                buscar_vagas,
+                usuario["termos_busca"]
+            )
+
+            info(usuario["termos_busca"])
+        else:
+            vagas = await to_thread(
+                buscar_vagas,
+                obter_termos_busca()
+            )
 
         info(f"Busca concluída. {len(vagas)} vagas únicas encontradas.")
 
