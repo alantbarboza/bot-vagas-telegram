@@ -34,12 +34,20 @@ def extrair_linkedin(page, termos_busca):
                     'a[href*="/jobs/view/"]'
                 )
 
+                ##########teste render##########
+                info(f"Cards encontrados: {len(cards)}")
+                ##########teste render##########
+
                 if not cards:
                     break
 
                 for v in cards:
                     try:
-                        titulo = v.inner_text().strip()
+                        #teste render
+                        #titulo = v.inner_text().strip()
+                        titulo = v.text_content()
+                        info(f"Título bruto: {titulo}")
+                        #teste render
 
                         link = v.get_attribute("href")
 
