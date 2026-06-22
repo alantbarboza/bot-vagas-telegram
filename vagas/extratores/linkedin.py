@@ -23,31 +23,16 @@ def extrair_linkedin(page, termos_busca):
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
                 page.wait_for_timeout(3000)
 
-
-                ##########teste render##########
-                html = page.content()
-                info(f"HTML LinkedIn (primeiros 5000 caracteres):\n{html[:5000]}")
-                ##########teste render##########
-
-
                 cards = page.query_selector_all(
                     'a[href*="/jobs/view/"]'
                 )
-
-                ##########teste render##########
-                info(f"Cards encontrados: {len(cards)}")
-                ##########teste render##########
 
                 if not cards:
                     break
 
                 for v in cards:
                     try:
-                        #teste render
-                        #titulo = v.inner_text().strip()
-                        titulo = v.text_content()
-                        info(f"Título bruto: {titulo}")
-                        #teste render
+                        titulo = (v.text_content() or "").strip()
 
                         link = v.get_attribute("href")
 
@@ -70,14 +55,14 @@ def extrair_linkedin(page, termos_busca):
                             )
 
                             if empresa_el:
-                                empresa = empresa_el.inner_text().strip()
+                                empresa = (empresa_el.text_content() or "").strip()
 
                             local_el = parent.query_selector(
                                 ".job-search-card__location, [class*='location']"
                             )
 
                             if local_el:
-                                local = local_el.inner_text().strip()
+                                local = (local_el.text_content() or "").strip()
 
                             data_el = parent.query_selector("time")
 
