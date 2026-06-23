@@ -30,10 +30,16 @@ def extrair_linkedin(page, termos_busca):
                 if not cards:
                     break
 
-                #for v in cards:
+                info(f"LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | START={start}")
+
+                #for v in cards:                
                 for i, v in enumerate(cards):
                     try:
-                        info(f"CARD {i+1}/{len(cards)} - início")
+                        info(
+                            f"TERMO='{termo}' | "
+                            f"PAGINA={pagina + 1} | "
+                            f"CARD={i+1}/{len(cards)} - início"
+                        )
                         #info(f"CARD {v} - início")
 
                         info(f"CARD {v} - lendo título")
@@ -112,7 +118,13 @@ def extrair_linkedin(page, termos_busca):
                         continue
 
             except Exception as e:
-                error(f"Erro ao acessar o site Linkedin: {e}")
+                #error(f"Erro ao acessar o site Linkedin: {e}")
+                warning(
+                    f"TERMO='{termo}' | "
+                    f"PAGINA={pagina + 1} | "
+                    f"CARD={i+1}/{len(cards)} | "
+                    f"ERRO={e}"
+                )
                 continue
 
     return vagas
