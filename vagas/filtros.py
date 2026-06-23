@@ -22,7 +22,7 @@ def usuario_cadastrado(user_id):
 
     return str(user_id) in usuarios
 
-def c():
+def obter_termos_busca():
     usuarios = carregar_usuarios()
 
     termos = set()
