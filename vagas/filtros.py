@@ -4,7 +4,7 @@ from json import load, dump
 import os
 
 PERIODO_DIAS = 2
-MAX_PAGINAS = 7
+MAX_PAGINAS = 3
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USUARIOS_PATH = os.path.join(BASE_DIR, "usuarios.json")
