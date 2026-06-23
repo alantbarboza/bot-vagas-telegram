@@ -2,6 +2,7 @@ from playwright.sync_api import sync_playwright
 from logging import info
 from vagas.filtros import validar_periodo, remover_duplicadas
 from utils.navegador import criar_navegador_humano
+
 from vagas.extratores.linkedin import extrair_linkedin
 from vagas.extratores.nerdin import extrair_nerdin
 from vagas.extratores.solides import extrair_solides
