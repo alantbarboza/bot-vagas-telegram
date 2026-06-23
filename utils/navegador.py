@@ -34,8 +34,8 @@ def criar_navegador_humano(playwright):
         "Upgrade-Insecure-Requests": "1"
     })
 
-    page.set_default_timeout(60000)
-    page.set_default_navigation_timeout(60000)
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(10000)
 
     page.mouse.move(500, 300)
 

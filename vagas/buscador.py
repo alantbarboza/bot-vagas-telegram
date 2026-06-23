@@ -16,11 +16,11 @@ def buscar_vagas(termos_busca):
         vagas = []
 
         vagas += extrair_linkedin(page, termos_busca)
-        vagas += extrair_nerdin(page, termos_busca)
-        vagas += extrair_solides(page, termos_busca)
-        vagas += extrair_empregos(page, termos_busca)
-        vagas += extrair_infojobs(page, termos_busca)
-        vagas += extrair_99jobs(page, termos_busca)
+        #vagas += extrair_nerdin(page, termos_busca)
+        #vagas += extrair_solides(page, termos_busca)
+        #vagas += extrair_empregos(page, termos_busca)
+        #vagas += extrair_infojobs(page, termos_busca)
+        #vagas += extrair_99jobs(page, termos_busca)
 
         browser.close()
 

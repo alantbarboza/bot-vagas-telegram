@@ -35,7 +35,8 @@ def extrair_linkedin(page, termos_busca):
                         info(f"CARD {v} - início")
 
                         info(f"CARD {v} - lendo título")
-                        titulo = v.inner_text().strip()
+                        #titulo = v.inner_text().strip()
+                        titulo = (v.text_content() or "").strip()
 
                         info(f"CARD {v} - lendo link")
                         link = v.get_attribute("href")
@@ -63,7 +64,8 @@ def extrair_linkedin(page, termos_busca):
 
                             if empresa_el:
                                 info(f"CARD {v} - lendo empresa")
-                                empresa = empresa_el.inner_text().strip()
+                                #empresa = empresa_el.inner_text().strip()
+                                empresa = (empresa_el.text_content() or "").strip()
 
                             info(f"CARD {v} - buscando local")
                             local_el = parent.query_selector(
@@ -72,7 +74,8 @@ def extrair_linkedin(page, termos_busca):
 
                             if local_el:
                                 info(f"CARD {v} - lendo local")
-                                local = local_el.inner_text().strip()
+                                #local = local_el.inner_text().strip()
+                                local = (local_el.text_content() or "").strip()
 
                             info(f"CARD {v} - buscando data")
                             data_el = parent.query_selector("time")
