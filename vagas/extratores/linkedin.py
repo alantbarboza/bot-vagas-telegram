@@ -30,9 +30,11 @@ def extrair_linkedin(page, termos_busca):
                 if not cards:
                     break
 
-                for v in cards:
+                #for v in cards:
+                for i, v in enumerate(cards):
                     try:
-                        info(f"CARD {v} - início")
+                        info(f"CARD {i+1}/{len(cards)} - início")
+                        #info(f"CARD {v} - início")
 
                         info(f"CARD {v} - lendo título")
                         #titulo = v.inner_text().strip()
