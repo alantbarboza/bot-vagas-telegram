@@ -1,4 +1,4 @@
-def criar_navegador_humano(playwright):
+def criar_navegador(playwright):
 
     browser = playwright.chromium.launch(
         headless=True,
@@ -21,6 +21,10 @@ def criar_navegador_humano(playwright):
         color_scheme="light"
     )
 
+    return browser, context
+
+def criar_pagina(context):
+
     page = context.new_page()
 
     page.add_init_script("""
@@ -35,8 +39,7 @@ def criar_navegador_humano(playwright):
     })
 
     page.set_default_timeout(10000)
-    page.set_default_navigation_timeout(10000)
-
+    page.set_default_navigation_timeout(30000)
     page.mouse.move(500, 300)
 
-    return browser, page
+    return page
