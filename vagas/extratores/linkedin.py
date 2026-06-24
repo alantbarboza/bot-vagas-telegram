@@ -1,5 +1,5 @@
 from datetime import datetime
-from logging import info, warning, error
+from logging import info, warning
 from vagas.filtros import MAX_PAGINAS
 
 def extrair_linkedin(page, termos_busca):
@@ -28,34 +28,24 @@ def extrair_linkedin(page, termos_busca):
                 )
 
                 if not cards:
+                    info(f"LinkedIn | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
                     break
 
-                info(f"LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | START={start}")
+                info(f"LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={len(cards)}")
 
-                #for v in cards:                
-                for i, v in enumerate(cards):
-                    try:
-                        info(
-                            f"TERMO='{termo}' | "
-                            f"PAGINA={pagina + 1} | "
-                            f"CARD={i+1}/{len(cards)} - início"
-                        )
-                        #info(f"CARD {v} - início")
+                vagas_capturadas = 0
 
-                        info(f"CARD {v} - lendo título")
-                        #titulo = v.inner_text().strip()
+                for v in cards:
+                    try:                      
                         titulo = (v.text_content() or "").strip()
 
-                        info(f"CARD {v} - lendo link")
                         link = v.get_attribute("href")
 
                         if not link:
-                            info(f"CARD {v} - sem link")
                             continue
 
                         link = link.split("?")[0]
 
-                        info(f"CARD {v} - buscando parent")
                         parent = v.evaluate_handle(
                             'el => el.closest("li, .job-search-card")'
                         ).as_element()
@@ -65,27 +55,20 @@ def extrair_linkedin(page, termos_busca):
                         data = None
 
                         if parent:
-                            info(f"CARD {v} - buscando empresa")
                             empresa_el = parent.query_selector(
                                 ".base-search-card__subtitle a"
                             )
 
                             if empresa_el:
-                                info(f"CARD {v} - lendo empresa")
-                                #empresa = empresa_el.inner_text().strip()
                                 empresa = (empresa_el.text_content() or "").strip()
 
-                            info(f"CARD {v} - buscando local")
                             local_el = parent.query_selector(
                                 ".job-search-card__location, [class*='location']"
                             )
 
                             if local_el:
-                                info(f"CARD {v} - lendo local")
-                                #local = local_el.inner_text().strip()
                                 local = (local_el.text_content() or "").strip()
 
-                            info(f"CARD {v} - buscando data")
                             data_el = parent.query_selector("time")
 
                             if data_el:
@@ -96,8 +79,6 @@ def extrair_linkedin(page, termos_busca):
                                         data_iso,
                                         "%Y-%m-%d"
                                     )
-
-                        info(f"CARD {v} - adicionando vaga")
 
                         vagas.append({
                             "title": titulo,
@@ -111,20 +92,15 @@ def extrair_linkedin(page, termos_busca):
                             )
                         })
 
-                        info(f"CARD {v} - concluído")
-
+                        vagas_capturadas += 1
                     except Exception as e:
-                        warning(f"Erro ao processar vaga, {e}")
+                        warning(f"Erro ao processar vaga LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
                         continue
 
+                info(f"LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+            
             except Exception as e:
-                #error(f"Erro ao acessar o site Linkedin: {e}")
-                warning(
-                    f"TERMO='{termo}' | "
-                    f"PAGINA={pagina + 1} | "
-                    f"CARD={i+1}/{len(cards)} | "
-                    f"ERRO={e}"
-                )
+                warning(f"Erro ao acessar LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | START={start} | ERRO={e}")
                 continue
 
     return vagas

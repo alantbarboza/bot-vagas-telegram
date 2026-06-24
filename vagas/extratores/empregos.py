@@ -1,6 +1,6 @@
 from base64 import b64encode
 from json import dumps
-from logging import info, warning, error
+from logging import info, warning
 from vagas.filtros import MAX_PAGINAS, PERIODO_DIAS
 
 def extrair_empregos(page, termos_busca):
@@ -46,18 +46,23 @@ def extrair_empregos(page, termos_busca):
                 cards = page.query_selector_all("#job-card")
 
                 if not cards:
+                    info(f"Empregos | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
                     break
+
+                info(f"Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={len(cards)}")
+
+                vagas_capturadas = 0
 
                 for v in cards:
                     try:
                         titulo_el = v.query_selector("h2 span")
-                        titulo = titulo_el.inner_text().strip() if titulo_el else ""
+                        titulo = (titulo_el.text_content() or "").strip() if titulo_el else ""
 
                         empresa_el = v.query_selector("h3 a")
-                        empresa = empresa_el.inner_text().strip() if empresa_el else ""
+                        empresa = (empresa_el.text_content() or "").strip() if empresa_el else ""
 
                         local_el = v.query_selector('h3[title]')
-                        local = local_el.inner_text().strip() if local_el else ""
+                        local = (local_el.text_content() or "").strip() if local_el else ""
 
                         link_el = v.query_selector('a[href*="/vaga/"]')
                         link = link_el.get_attribute("href") if link_el else None
@@ -66,14 +71,14 @@ def extrair_empregos(page, termos_busca):
                             link = "https://www.empregos.com.br" + link
 
                         descricao_el = v.query_selector(".line-clamp-5, .line-clamp-3")
-                        descricao = descricao_el.inner_text().strip() if descricao_el else ""
+                        descricao = (descricao_el.text_content() or "").strip() if descricao_el else ""
 
                         data_texto = ""
 
                         infos = v.query_selector_all( "div.flex.gap-1.items-center" )
 
                         for item in infos:
-                            texto = item.inner_text().strip()
+                            texto = (item.text_content() or "").strip()
 
                             if "Publicada há" in texto:
                                 data_texto = texto
@@ -89,12 +94,15 @@ def extrair_empregos(page, termos_busca):
                             "posted_date": data_texto
                         })
 
+                        vagas_capturadas += 1
                     except Exception as e:
-                        warning(f"Erro ao processar vaga, {e}")
+                        warning(f"Erro ao processar vaga Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
                         continue
 
+                info(f"Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+
             except Exception as e:
-                error(f"Erro ao acessar o site Empregos: {e}")
+                warning(f"Erro ao acessar Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
                 continue
 
     return vagas

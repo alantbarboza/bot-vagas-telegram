@@ -1,5 +1,5 @@
 from datetime import datetime
-from logging import info, warning, error
+from logging import info, warning
 from vagas.filtros import MAX_PAGINAS
 
 def extrair_solides(page, termos_busca):
@@ -26,7 +26,12 @@ def extrair_solides(page, termos_busca):
                 cards = page.query_selector_all('[data-cy="list-vacancies"] li')
 
                 if not cards:
+                    info(f"Solides | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
                     break
+
+                info(f"Solides | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={len(cards)}")
+
+                vagas_capturadas = 0
 
                 for v in cards:
                     try:
@@ -34,17 +39,17 @@ def extrair_solides(page, termos_busca):
                         if not titulo_el:
                             continue
 
-                        titulo = titulo_el.get_attribute("title") or titulo_el.inner_text().strip()
+                        titulo = (titulo_el.get_attribute("title") or (titulo_el.text_content() or "").strip())
 
                         link = titulo_el.get_attribute("href")
                         if link and not link.startswith("http"):
                             link = "https://vagas.solides.com.br" + link
 
                         empresa_el = v.query_selector('[data-cy="vacancy-company-name"]')
-                        empresa = empresa_el.inner_text().strip() if empresa_el else ""
+                        empresa = (empresa_el.text_content() or "").strip() if empresa_el else ""
 
                         local_el = v.query_selector('p:has(span[data-icon="location_on"])')
-                        local = local_el.inner_text().strip() if local_el else ""
+                        local = (local_el.text_content() or "").strip() if local_el else ""
 
                         data_el = v.query_selector("time")
                         data = None
@@ -55,8 +60,8 @@ def extrair_solides(page, termos_busca):
 
                         hashtags_el = v.query_selector_all("div.flex.flex-wrap.gap-2 div")
                         hashtags = " ".join([
-                            h.inner_text().strip().lower()
-                            for h in hashtags_el if h.inner_text()
+                            ((h.text_content() or "").strip().lower())
+                            for h in hashtags_el if (h.text_content() or "").strip()
                         ])
 
                         vagas.append({
@@ -69,12 +74,15 @@ def extrair_solides(page, termos_busca):
                             "posted_date": data.strftime("%Y-%m-%d") if data else None,
                         })
 
+                        vagas_capturadas += 1
                     except Exception as e:
-                        warning(f"Erro ao processar vaga, {e}")
+                        warning(f"Erro ao processar vaga Solides | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
                         continue
 
+                info(f"Solides | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+
             except Exception as e:
-                error(f"Erro ao acessar o site Solides: {e}")
+                warning(f"Erro ao acessar Solides | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
                 continue
 
     return vagas
