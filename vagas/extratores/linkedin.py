@@ -1,6 +1,8 @@
 from datetime import datetime
 from logging import info, warning
 from vagas.filtros import MAX_PAGINAS
+from utils.playwright import texto, atributo, elemento
+
 
 def extrair_linkedin(page, termos_busca):
     info("Extraindo vagas do LinkedIn.")
@@ -20,12 +22,10 @@ def extrair_linkedin(page, termos_busca):
                     f"&start={start}"
                 )
 
-                page.goto(url, timeout=30000,  wait_until="domcontentloaded")
+                page.goto(url, timeout=45000,  wait_until="domcontentloaded")
                 page.wait_for_timeout(3000)
 
-                cards = page.query_selector_all(
-                    'a[href*="/jobs/view/"]'
-                )
+                cards = elemento( page, 'a[href*="/jobs/view/"]', todos=True )
 
                 if not cards:
                     info(f"LinkedIn | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
@@ -37,9 +37,9 @@ def extrair_linkedin(page, termos_busca):
 
                 for v in cards:
                     try:                      
-                        titulo = (v.text_content() or "").strip()
+                        titulo = texto(v)
 
-                        link = v.get_attribute("href")
+                        link = atributo(v, "href")
 
                         if not link:
                             continue
@@ -55,24 +55,20 @@ def extrair_linkedin(page, termos_busca):
                         data = None
 
                         if parent:
-                            empresa_el = parent.query_selector(
-                                ".base-search-card__subtitle a"
-                            )
+                            empresa_el = elemento( parent, ".base-search-card__subtitle a" )
 
                             if empresa_el:
-                                empresa = (empresa_el.text_content() or "").strip()
+                                empresa = texto(empresa_el)
 
-                            local_el = parent.query_selector(
-                                ".job-search-card__location, [class*='location']"
-                            )
+                            local_el = elemento( parent, ".job-search-card__location, [class*='location']" )
 
                             if local_el:
-                                local = (local_el.text_content() or "").strip()
+                                local = texto(local_el)
 
-                            data_el = parent.query_selector("time")
+                            data_el = elemento(parent, "time")
 
                             if data_el:
-                                data_iso = data_el.get_attribute("datetime")
+                                data_iso = atributo(data_el, "datetime")
 
                                 if data_iso:
                                     data = datetime.strptime(

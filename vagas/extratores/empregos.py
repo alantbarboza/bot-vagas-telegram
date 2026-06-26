@@ -2,6 +2,7 @@ from base64 import b64encode
 from json import dumps
 from logging import info, warning
 from vagas.filtros import MAX_PAGINAS, PERIODO_DIAS
+from utils.playwright import texto, atributo, elemento
 
 def extrair_empregos(page, termos_busca):
     info("Extraindo vagas do Empregos.com.br.")
@@ -43,7 +44,7 @@ def extrair_empregos(page, termos_busca):
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
                 page.wait_for_timeout(3000)
 
-                cards = page.query_selector_all("#job-card")
+                cards = elemento( page, "#job-card", todos=True )
 
                 if not cards:
                     info(f"Empregos | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
@@ -55,33 +56,33 @@ def extrair_empregos(page, termos_busca):
 
                 for v in cards:
                     try:
-                        titulo_el = v.query_selector("h2 span")
-                        titulo = (titulo_el.text_content() or "").strip() if titulo_el else ""
+                        titulo_el = elemento(v, "h2 span")
+                        titulo = texto(titulo_el) if titulo_el else ""
 
-                        empresa_el = v.query_selector("h3 a")
-                        empresa = (empresa_el.text_content() or "").strip() if empresa_el else ""
+                        empresa_el = elemento(v, "h3 a")
+                        empresa = texto(empresa_el) if empresa_el else ""
 
-                        local_el = v.query_selector('h3[title]')
-                        local = (local_el.text_content() or "").strip() if local_el else ""
+                        local_el = elemento(v, 'h3[title]')
+                        local = texto(local_el) if local_el else ""
 
-                        link_el = v.query_selector('a[href*="/vaga/"]')
-                        link = link_el.get_attribute("href") if link_el else None
+                        link_el = elemento(v, 'a[href*="/vaga/"]')
+                        link = atributo(link_el, "href") if link_el else None
 
                         if (link and not link.startswith("http")):
                             link = "https://www.empregos.com.br" + link
 
-                        descricao_el = v.query_selector(".line-clamp-5, .line-clamp-3")
-                        descricao = (descricao_el.text_content() or "").strip() if descricao_el else ""
+                        descricao_el = elemento(v, ".line-clamp-5, .line-clamp-3")
+                        descricao = texto(descricao_el) if descricao_el else ""
 
                         data_texto = ""
 
-                        infos = v.query_selector_all( "div.flex.gap-1.items-center" )
+                        infos = elemento( v, "div.flex.gap-1.items-center", todos=True )
 
                         for item in infos:
-                            texto = (item.text_content() or "").strip()
+                            texto_item = texto(item)
 
-                            if "Publicada há" in texto:
-                                data_texto = texto
+                            if "Publicada há" in texto_item:
+                                data_texto = texto_item
                                 break
 
                         vagas.append({

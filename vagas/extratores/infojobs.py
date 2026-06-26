@@ -1,6 +1,8 @@
 from logging import info, warning
 from re import search, sub, IGNORECASE
 from vagas.filtros import MAX_PAGINAS, PERIODO_DIAS
+from utils.playwright import texto, atributo, elemento
+
 
 def extrair_infojobs(page, termos_busca):
     info("Extraindo vagas do InfoJobs.")
@@ -26,37 +28,35 @@ def extrair_infojobs(page, termos_busca):
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
                 page.wait_for_timeout(3000)
 
-                cards = page.query_selector_all(
-                    ".js_rowCard[data-href]"
-                )
+                cards = elemento( page, ".js_rowCard[data-href]", todos=True )   
 
                 if not cards:
-                    info(f"InfoJobs | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
+                    info(f"InfoJobs | TERMO='{termo}' |  PAGINA={pagina} |  SEM RESULTADOS")
                     break
 
-                info(f"InfoJobs | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={len(cards)}")
+                info(f"InfoJobs | TERMO='{termo}' | PAGINA={pagina} | VAGAS={len(cards)}")
 
                 vagas_capturadas = 0
 
                 for v in cards:
                     try:
-                        link = v.get_attribute("data-href")
+                        link = atributo(v, "data-href")
 
                         if (link and not link.startswith("http")):
                             link = "https://www.infojobs.com.br" + link
 
-                        titulo_el = v.query_selector(".js_vacancyTitle")
-                        titulo = (titulo_el.text_content() or "").strip() if titulo_el else "" 
+                        titulo_el = elemento(v, ".js_vacancyTitle")
+                        titulo = texto(titulo_el) if titulo_el else "" 
 
                         empresa = ""
-                        empresa_els = v.query_selector_all("a.text-body.text-decoration-none")
+                        empresa_els = elemento( v, "a.text-body.text-decoration-none", todos=True )
 
                         for el in empresa_els:
-                            texto = ((el.text_content() or "").strip())
+                            texto_el = texto(el)
 
-                            if (texto and texto.lower() != titulo.lower()):
+                            if (texto_el and texto_el.lower() != titulo.lower()):
                                 empresa = (
-                                    texto
+                                    texto_el
                                     .replace("\n", " ")
                                     .strip()
                                 )
@@ -71,36 +71,30 @@ def extrair_infojobs(page, termos_busca):
                                 break
 
                         local = ""
-                        local_els = v.query_selector_all(
-                            "div.mb-8"
-                        )
+                        local_els = elemento( v, "div.mb-8", todos=True )
 
                         for el in local_els:
-                            texto = ((el.text_content() or "").strip())
+                            texto_el = texto(el)
 
-                            if search(r"[A-Za-zÀ-ÿ\s]+ - [A-Z]{2}", texto):
+                            if search(r"[A-Za-zÀ-ÿ\s]+ - [A-Z]{2}", texto_el):
                                 local = (
-                                    texto
+                                    texto_el
                                     .split(",")[0]
                                     .strip()
                                 )
                                 break
 
                         descricao = ""
-                        descricao_els = v.query_selector_all(
-                            "div.text-medium"
-                        )
+                        descricao_els = elemento( v, "div.text-medium", todos=True )
 
                         if descricao_els:
-                            descricao = ((descricao_els[-1].text_content() or "").strip())
+                            descricao = texto(descricao_els[-1])
 
                         data = ""
-                        data_el = v.query_selector(
-                            "div.text-medium.small.text-nowrap"
-                        )
+                        data_el = elemento(v, "div.text-medium.small.text-nowrap")
 
                         if data_el:
-                            data = ((data_el.text_content() or "").strip())
+                            data = texto(data_el)
 
                         vagas.append({
                             "title": titulo,
@@ -114,13 +108,13 @@ def extrair_infojobs(page, termos_busca):
 
                         vagas_capturadas += 1
                     except Exception as e:
-                        warning(f"Erro ao processar vaga InfoJobs | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
+                        warning(f"Erro ao processar vaga InfoJobs | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")
                         continue
 
-                info(f"InfoJobs | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+                info(f"InfoJobs | TERMO='{termo}' | PAGINA={pagina} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
 
             except Exception as e:
-                warning(f"Erro ao acessar InfoJobs | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
+                warning(f"Erro ao acessar InfoJobs | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")
                 continue
 
     return vagas

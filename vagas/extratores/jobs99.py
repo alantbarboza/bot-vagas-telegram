@@ -1,5 +1,7 @@
 from logging import info, warning
 from vagas.filtros import MAX_PAGINAS
+from utils.playwright import texto, atributo, elemento
+
 
 def extrair_99jobs(page, termos_busca):
     info("Extraindo vagas do 99Jobs.")
@@ -21,38 +23,42 @@ def extrair_99jobs(page, termos_busca):
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
                 page.wait_for_timeout(3000)
 
-                cards = page.query_selector_all("a[href*='/jobs/']")
+                cards = elemento( page, "a[href*='/jobs/']", todos=True )
 
                 if not cards:
-                    info(f"99Jobs | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
+                    info(f"99Jobs | TERMO='{termo}' |  PAGINA={pagina} |  SEM RESULTADOS")
                     break
 
-                info(f"99Jobs | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={len(cards)}")
+                info(f"99Jobs | TERMO='{termo}' | PAGINA={pagina} | VAGAS={len(cards)}")
 
                 vagas_capturadas = 0
 
                 for v in cards:
                     try:
-                        link = v.get_attribute("href")
+                        link = atributo(v, "href")
 
                         if link and not link.startswith("http"):
                             link = "https://99jobs.com" + link
 
-                        titulo_el = v.query_selector("h1")
-                        titulo = (titulo_el.text_content() or "").strip() if titulo_el else ""
+                        titulo_el = elemento(v, "h1")
+                        titulo = texto(titulo_el) if titulo_el else ""
 
-                        empresa_el = v.query_selector(".opportunity-company-infos h2")
-                        empresa = (empresa_el.text_content() or "").strip() if empresa_el else ""
+                        empresa_el = elemento(v, ".opportunity-company-infos h2")
+                        empresa = texto(empresa_el) if empresa_el else ""
 
-                        local_el = v.query_selector(".opportunity-address p")
-                        local = (local_el.text_content() or "").strip() if local_el else ""
+                        local_el = elemento(v, ".opportunity-address p")
+                        local = texto(local_el) if local_el else ""
 
-                        tags_el = v.query_selector_all(".opportunity-labels .opportunity-label")
-                        tags = " ".join([
-                            ((tag.text_content() or "").strip().lower())
-                            for tag in tags_el
-                            if (tag.text_content() or "").strip()
-                        ])
+                        tags_el = elemento( v, ".opportunity-labels .opportunity-label", todos=True )
+                        tags = []
+
+                        for tag in tags_el:
+                            valor = texto(tag)
+
+                            if valor:
+                                tags.append(valor.lower())
+
+                        tags = " ".join(tags)
 
                         local = (f"{local} {tags}")
                         
@@ -68,13 +74,13 @@ def extrair_99jobs(page, termos_busca):
 
                         vagas_capturadas += 1
                     except Exception as e:
-                        warning(f"Erro ao processar vaga 99jobs | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
+                        warning(f"Erro ao processar vaga 99jobs | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")
                         continue
 
-                info(f"99jobs | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+                info(f"99jobs | TERMO='{termo}' | PAGINA={pagina} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
 
             except Exception as e:
-                warning(f"Erro ao acessar 99Jobs | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
+                warning(f"Erro ao acessar 99Jobs | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")
                 continue
 
     return vagas
