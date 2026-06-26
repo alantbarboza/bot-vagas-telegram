@@ -5,7 +5,7 @@ def texto(elemento):
         return ""
 
     try:
-        return (elemento.text_content(timeout=2000) or "").strip()
+        return (elemento.text_content() or "").strip()
 
     except Exception as e:
         warning(f"Utils/playwright | Erro ao obter texto: {e}")
@@ -16,7 +16,7 @@ def atributo(elemento, nome):
         return None
 
     try:
-        return elemento.get_attribute(nome, timeout=2000)
+        return elemento.get_attribute(nome)
 
     except Exception as e:
         warning(f"Utils/playwright | Erro ao obter atributo '{nome}': {e}")
