@@ -21,38 +21,42 @@ def extrair_99jobs(page, termos_busca):
                 )
 
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_timeout(3000)
+                page.wait_for_selector("a[href*='/jobs/']", timeout=10000)
 
-                cards = elemento( page, "a[href*='/jobs/']", todos=True )
+                cards = elemento(page, "a[href*='/jobs/']", todos=True)
+                total_cards = cards.count()
 
-                if not cards:
+                if total_cards == 0:
                     info(f"99Jobs | TERMO='{termo}' |  PAGINA={pagina} |  SEM RESULTADOS")
                     break
 
-                info(f"99Jobs | TERMO='{termo}' | PAGINA={pagina} | VAGAS={len(cards)}")
+                info(f"99Jobs | TERMO='{termo}' | PAGINA={pagina} | VAGAS={total_cards}")
 
                 vagas_capturadas = 0
 
-                for v in cards:
+                for i in range(total_cards):
                     try:
+                        v = cards.nth(i)
+                        
+                        if v.count() == 0:
+                            continue
+
                         link = atributo(v, "href")
 
                         if link and not link.startswith("http"):
                             link = "https://99jobs.com" + link
 
-                        titulo_el = elemento(v, "h1")
-                        titulo = texto(titulo_el) if titulo_el else ""
+                        titulo = texto(elemento(v, "h1"))
 
-                        empresa_el = elemento(v, ".opportunity-company-infos h2")
-                        empresa = texto(empresa_el) if empresa_el else ""
+                        empresa = texto(elemento(v, ".opportunity-company-infos h2"))
 
-                        local_el = elemento(v, ".opportunity-address p")
-                        local = texto(local_el) if local_el else ""
+                        local = texto(elemento(v, ".opportunity-address p"))
 
                         tags_el = elemento( v, ".opportunity-labels .opportunity-label", todos=True )
                         tags = []
 
-                        for tag in tags_el:
+                        for j in range(tags_el.count()):
+                            tag = tags_el.nth(j)
                             valor = texto(tag)
 
                             if valor:
@@ -77,7 +81,7 @@ def extrair_99jobs(page, termos_busca):
                         warning(f"Erro ao processar vaga 99jobs | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")
                         continue
 
-                info(f"99jobs | TERMO='{termo}' | PAGINA={pagina} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+                info(f"99jobs | TERMO='{termo}' | PAGINA={pagina} | CAPTURADAS={vagas_capturadas}/{total_cards}")
 
             except Exception as e:
                 warning(f"Erro ao acessar 99Jobs | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")

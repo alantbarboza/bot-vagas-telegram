@@ -13,43 +13,46 @@ def extrair_nerdin(page, termos_busca):
                 url = f"https://www.nerdin.com.br/vagas.php?busca={termo.replace(' ', '+')}&pagina={pagina}&filtro_home_office=1"
 
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_timeout(3000)
+                page.wait_for_selector(".vaga-card", timeout=10000)
 
-                cards = elemento( page, ".vaga-card", todos=True )
+                cards = elemento(page, ".vaga-card", todos=True)
+                total_cards = cards.count()
 
-                if not cards:
+                if total_cards == 0:
                     info(f"Nerdin | TERMO='{termo}' |  PAGINA={pagina} |  SEM RESULTADOS")
                     break
 
-                info(f"Nerdin | TERMO='{termo}' | PAGINA={pagina} | VAGAS={len(cards)}")
+                info(f"Nerdin | TERMO='{termo}' | PAGINA={pagina} | VAGAS={total_cards}")
 
                 vagas_capturadas = 0
 
-                for v in cards:
+                for i in range(total_cards):
                     try:
+                        v = cards.nth(i)
+
+                        if v.count() == 0:
+                            continue
+                        
                         nova_vaga = elemento(v, ".vaga-nova-badge")
                         if not nova_vaga:
                             continue
 
-                        titulo_el = elemento(v, ".vaga-titulo")
-                        titulo = texto(titulo_el) if titulo_el else ""
+                        titulo = texto(elemento(v, ".vaga-titulo"))
 
-                        link_el = elemento(v, ".btn-ver-vaga")
-                        link = atributo(link_el, "href") if link_el else None
+                        link = atributo(elemento(v, ".btn-ver-vaga"), "href")
 
                         if link and not link.startswith("http"):
                             link = "https://www.nerdin.com.br/" + link
 
-                        empresa_el = elemento(v, ".vaga-empresa")
-                        empresa = texto(empresa_el) if empresa_el else ""
+                        empresa = texto(elemento(v, ".vaga-empresa"))
 
-                        local_el = elemento(v, ".vaga-local")
-                        local = texto(local_el) if local_el else ""
+                        local = texto(elemento(v, ".vaga-local"))
 
                         hashtags_el = elemento( v, ".hashtag", todos=True )
                         hashtags = []
 
-                        for h in hashtags_el:
+                        for j in range(hashtags_el.count()):
+                            h = hashtags_el.nth(j)
                             valor = texto(h)
 
                             if valor:
@@ -72,7 +75,7 @@ def extrair_nerdin(page, termos_busca):
                         warning(f"Erro ao processar vaga Nerdin | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")
                         continue
 
-                info(f"Nerdin | TERMO='{termo}' | PAGINA={pagina} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+                info(f"Nerdin | TERMO='{termo}' | PAGINA={pagina} | CAPTURADAS={vagas_capturadas}/{total_cards}")
 
             except Exception as e:
                 warning(f"Erro ao acessar Nerdin | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")

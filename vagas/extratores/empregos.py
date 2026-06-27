@@ -42,43 +42,45 @@ def extrair_empregos(page, termos_busca):
 
             try:
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_timeout(3000)
+                page.wait_for_selector("#job-card", timeout=10000)
 
-                cards = elemento( page, "#job-card", todos=True )
+                cards = elemento(page, "#job-card", todos=True)
+                total_cards = cards.count()
 
-                if not cards:
+                if total_cards == 0:
                     info(f"Empregos | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
                     break
 
-                info(f"Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={len(cards)}")
+                info(f"Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={total_cards}")
 
                 vagas_capturadas = 0
 
-                for v in cards:
+                for i in range(total_cards):
                     try:
-                        titulo_el = elemento(v, "h2 span")
-                        titulo = texto(titulo_el) if titulo_el else ""
+                        v = cards.nth(i)
+                        
+                        if v.count() == 0:
+                            continue
 
-                        empresa_el = elemento(v, "h3 a")
-                        empresa = texto(empresa_el) if empresa_el else ""
+                        titulo = texto(elemento(v, "h2 span"))
 
-                        local_el = elemento(v, 'h3[title]')
-                        local = texto(local_el) if local_el else ""
+                        empresa = texto(elemento(v, "h3 a"))
 
-                        link_el = elemento(v, 'a[href*="/vaga/"]')
-                        link = atributo(link_el, "href") if link_el else None
+                        local = texto(elemento(v, 'h3[title]'))
+
+                        link = atributo(elemento(v, 'a[href*="/vaga/"]'), "href")
 
                         if (link and not link.startswith("http")):
                             link = "https://www.empregos.com.br" + link
 
-                        descricao_el = elemento(v, ".line-clamp-5, .line-clamp-3")
-                        descricao = texto(descricao_el) if descricao_el else ""
+                        descricao = texto(elemento(v, ".line-clamp-5, .line-clamp-3"))
 
                         data_texto = ""
 
                         infos = elemento( v, "div.flex.gap-1.items-center", todos=True )
 
-                        for item in infos:
+                        for j in range(infos.count()):
+                            item = infos.nth(j)
                             texto_item = texto(item)
 
                             if "Publicada há" in texto_item:
@@ -100,7 +102,7 @@ def extrair_empregos(page, termos_busca):
                         warning(f"Erro ao processar vaga Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
                         continue
 
-                info(f"Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+                info(f"Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{total_cards}")
 
             except Exception as e:
                 warning(f"Erro ao acessar Empregos | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")

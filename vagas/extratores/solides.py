@@ -23,20 +23,26 @@ def extrair_solides(page, termos_busca):
 
             try:
                 page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_timeout(3000)
+                page.wait_for_selector('[data-cy="list-vacancies"] li', timeout=10000)
 
-                cards = elemento( page, '[data-cy="list-vacancies"] li', todos=True )
+                cards = elemento(page, '[data-cy="list-vacancies"] li', todos=True)
+                total_cards = cards.count()
 
-                if not cards:
+                if total_cards == 0:
                     info(f"Solides | TERMO='{termo}' |  PAGINA={pagina} |  SEM RESULTADOS")
                     break
 
-                info(f"Solides | TERMO='{termo}' | PAGINA={pagina} | VAGAS={len(cards)}")
+                info(f"Solides | TERMO='{termo}' | PAGINA={pagina} | VAGAS={total_cards}")
 
                 vagas_capturadas = 0
 
-                for v in cards:
+                for i in range(total_cards):
                     try:
+                        v = cards.nth(i)
+                        
+                        if v.count() == 0:
+                            continue
+                        
                         titulo_el = elemento(v, "h2 a")
                         if not titulo_el:
                             continue
@@ -50,23 +56,20 @@ def extrair_solides(page, termos_busca):
                         if link and not link.startswith("http"):
                             link = "https://vagas.solides.com.br" + link
 
-                        empresa_el = elemento(v, '[data-cy="vacancy-company-name"]')
-                        empresa = texto(empresa_el) if empresa_el else ""
+                        empresa = texto(elemento(v, '[data-cy="vacancy-company-name"]'))
 
-                        local_el = elemento(v, 'p:has(span[data-icon="location_on"])')
-                        local = texto(local_el) if local_el else ""
+                        local = texto(elemento(v, 'p:has(span[data-icon="location_on"])'))
 
-                        data_el = elemento(v, "time")
-                        data = None
-                        if data_el:
-                            data_iso = atributo(data_el, "datetime")
-                            if data_iso:
-                                data = datetime.strptime(data_iso, "%Y-%m-%d")
+                        data_iso = atributo(elemento(v, "time"), "datetime")
 
-                        hashtags_el = elemento( v, "div.flex.flex-wrap.gap-2 div", todos=True )
+                        if data_iso:
+                            data = datetime.strptime(data_iso, "%Y-%m-%d")
+
+                        hashtags_el = elemento(v, "div.flex.flex-wrap.gap-2 div", todos=True)
                         hashtags = []
 
-                        for h in hashtags_el:
+                        for j in range(hashtags_el.count()):
+                            h = hashtags_el.nth(j)
                             valor = texto(h)
 
                             if valor:
@@ -89,7 +92,7 @@ def extrair_solides(page, termos_busca):
                         warning(f"Erro ao processar vaga Solides | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")
                         continue
 
-                info(f"Solides | TERMO='{termo}' | PAGINA={pagina} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+                info(f"Solides | TERMO='{termo}' | PAGINA={pagina} | CAPTURADAS={vagas_capturadas}/{total_cards}")
 
             except Exception as e:
                 warning(f"Erro ao acessar Solides | TERMO='{termo}' | PAGINA={pagina} | ERRO={e}")

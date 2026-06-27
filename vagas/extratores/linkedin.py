@@ -23,20 +23,26 @@ def extrair_linkedin(page, termos_busca):
                 )
 
                 page.goto(url, timeout=45000,  wait_until="domcontentloaded")
-                page.wait_for_timeout(3000)
+                page.wait_for_selector('a[href*="/jobs/view/"]', timeout=10000)
 
-                cards = elemento( page, 'a[href*="/jobs/view/"]', todos=True )
+                cards = elemento(page, 'a[href*="/jobs/view/"]', todos=True)
+                total_cards = cards.count()
 
-                if not cards:
+                if total_cards == 0:
                     info(f"LinkedIn | TERMO='{termo}' |  PAGINA={pagina + 1} |  SEM RESULTADOS")
                     break
 
-                info(f"LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={len(cards)}")
+                info(f"LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | VAGAS={total_cards}")
 
                 vagas_capturadas = 0
 
-                for v in cards:
-                    try:                      
+                for i in range(total_cards):
+                    try:
+                        v = cards.nth(i)
+                        
+                        if v.count() == 0:
+                            continue
+
                         titulo = texto(v)
 
                         link = atributo(v, "href")
@@ -46,35 +52,21 @@ def extrair_linkedin(page, termos_busca):
 
                         link = link.split("?")[0]
 
-                        parent = v.evaluate_handle(
-                            'el => el.closest("li, .job-search-card")'
-                        ).as_element()
+                        parent = v.locator("xpath=ancestor::li[1]")
 
-                        empresa = ""
-                        local = ""
+                        if not parent.count():
+                            continue
+
                         data = None
 
-                        if parent:
-                            empresa_el = elemento( parent, ".base-search-card__subtitle a" )
+                        empresa = texto(elemento(parent, ".base-search-card__subtitle a"))
 
-                            if empresa_el:
-                                empresa = texto(empresa_el)
+                        local = texto(elemento(parent, ".job-search-card__location, [class*='location']"))
 
-                            local_el = elemento( parent, ".job-search-card__location, [class*='location']" )
+                        data_iso = atributo(elemento(parent, "time"), "datetime")
 
-                            if local_el:
-                                local = texto(local_el)
-
-                            data_el = elemento(parent, "time")
-
-                            if data_el:
-                                data_iso = atributo(data_el, "datetime")
-
-                                if data_iso:
-                                    data = datetime.strptime(
-                                        data_iso,
-                                        "%Y-%m-%d"
-                                    )
+                        if data_iso:
+                            data = datetime.strptime(data_iso, "%Y-%m-%d")
 
                         vagas.append({
                             "title": titulo,
@@ -93,7 +85,7 @@ def extrair_linkedin(page, termos_busca):
                         warning(f"Erro ao processar vaga LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | ERRO={e}")
                         continue
 
-                info(f"LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{len(cards)}")
+                info(f"LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | CAPTURADAS={vagas_capturadas}/{total_cards}")
             
             except Exception as e:
                 warning(f"Erro ao acessar LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | START={start} | ERRO={e}")
