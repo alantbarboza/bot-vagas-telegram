@@ -4,6 +4,7 @@ from time import time
 from logging import info, warning, error
 from vagas.filtros import obter_filtros_usuario, atualizar_dados_usuario
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from bot.mensagens import enviar_mensagem, mensagens
 from bot.bot_instance import bot
 from vagas.envio import enviar_vagas
@@ -17,10 +18,11 @@ quarentena = {}
 QUARENTENA_BLOQ = Lock()
 TEMPO_QUARENTENA = 10
 
-BOT_INICIADO = datetime.now()
+TZ = ZoneInfo("America/Sao_Paulo")
+BOT_INICIADO = datetime.now(TZ)
 
 def tempo_online():
-    agora = datetime.now()
+    agora = datetime.now(TZ)
     diff = agora - BOT_INICIADO
 
     segundos = int(diff.total_seconds())

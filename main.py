@@ -9,7 +9,9 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler
 from aiohttp import web, ClientSession
 from asyncio import run, CancelledError, create_task, Event, sleep
 
-from logging import info, warning, basicConfig, INFO, error, getLogger, WARNING, StreamHandler
+from logging import info, warning, basicConfig, INFO, error, getLogger, WARNING, StreamHandler, Formatter
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from bot.comandos import verificar_comando, salvar_mensagem
 from vagas.filtros import usuario_cadastrado
@@ -19,11 +21,29 @@ import agendamento.execucao_automatica as execucao_automatica
 if name == "nt":
     stdout.reconfigure(encoding="utf-8")
 
+TZ = ZoneInfo("America/Sao_Paulo")
+
+class BrasilFormatter(Formatter):
+    def formatTime(self, record, datefmt=None):
+        dt = datetime.fromtimestamp(record.created, TZ)
+
+        if datefmt:
+            return dt.strftime(datefmt)
+
+        return dt.strftime("%d/%m/%Y %H:%M:%S")
+
+handler = StreamHandler(stdout)
+
+handler.setFormatter(
+    BrasilFormatter(
+        "%(asctime)s | %(levelname)s | %(message)s",
+        datefmt="%d/%m/%Y %H:%M:%S"
+    )
+)
+
 basicConfig(
     level=INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s",
-    datefmt="%d/%m/%Y %H:%M:%S",
-    handlers=[StreamHandler(stdout)]
+    handlers=[handler]
 )
 
 getLogger("aiogram.event").setLevel(WARNING)

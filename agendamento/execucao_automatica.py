@@ -1,8 +1,11 @@
 from asyncio import sleep
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from logging import info
 from vagas.envio import enviar_vagas
 import bot.comandos as comandos
+
+TZ = ZoneInfo("America/Sao_Paulo")
 
 proxima_execucao = None
 
@@ -11,7 +14,7 @@ async def iniciar_agendador():
 
     while True:
 
-        agora = datetime.now()
+        agora = datetime.now(TZ)
 
         proxima_execucao = agora.replace(
             hour=17,
