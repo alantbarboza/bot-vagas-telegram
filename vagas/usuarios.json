@@ -1,6 +1,7 @@
 {
     "6406165303": {
         "nome": "Alan",
+        "hora_execucao": "16:00",
         "termos_busca": [
             "desenvolvedor",
             "desenvolvedor junior",
@@ -14,7 +15,9 @@
             "analista de sistemas",
             "analista de desenvolvimento de sistemas",
             "rpa",
-            "programador"
+            "programador",
+            "trainee ti",
+            "trainee tecnologia"
         ],
         "niveis": [
             "júnior",
@@ -39,7 +42,8 @@
             "api",
             "apis",
             "sql",
-            "software"
+            "software",
+            "vpn"
         ],
         "localizacoes": [
             "remoto",
@@ -83,22 +87,18 @@
     },
     "6267955972": {
         "nome": "Yasmin",
+        "hora_execucao": "04:00",
         "termos_busca": [
             "seguranca da informacao",
-            "cyber security",
             "analista de seguranca",
-            "analista de seguranca da informacao",
+            "analista seguranca da informacao",
+            "cyber security",
+            "cybersecurity",
             "soc",
             "analista soc",
             "blue team",
             "red team",
-            "gestao de riscos",
             "estagio seguranca da informacao",
-            "estagio cyber security",
-            "estagio seguranca cibernetica",
-            "estagiario seguranca da informacao",
-            "estagiario cyber security",
-            "estagio soc",
             "trainee seguranca da informacao",
             "trainee tecnologia",
             "trainee ti"

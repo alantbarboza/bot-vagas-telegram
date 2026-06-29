@@ -69,10 +69,7 @@ async def enviar_vagas(chat_id_destino=None):
 
             total_vagas = contar_vagas(vagas_usuario)
 
-            await enviar_mensagem(
-                int(chat_id),
-                f"{total_vagas}\n"
-            )
+            await enviar_mensagem(int(chat_id), f"{total_vagas}\n")
 
             texto_final = ""
 

@@ -35,6 +35,11 @@ def obter_termos_busca():
 
     return list(termos)
 
+def obter_horario_execucao(user_id):
+    usuarios = carregar_usuarios()
+
+    return usuarios[str(user_id)]["hora_execucao"]
+
 def obter_filtros_usuario(user_id):
     usuarios = carregar_usuarios()
 

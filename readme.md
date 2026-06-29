@@ -19,7 +19,7 @@ Este projeto foi desenvolvido com foco em automação, web scraping, integraçã
 * Remoção de vagas duplicadas.
 * Filtragem por período de publicação.
 * Classificação de vagas por pontuação de compatibilidade.
-* Envio automático de vagas em horários programados.
+* Envio automático de vagas em horários individuais por usuário.
 * Controle de permissões para grupos do Telegram.
 * Gerenciamento dinâmico de filtros sem necessidade de alterar o código.
 
@@ -42,19 +42,22 @@ Cada portal possui um extrator independente para facilitar manutenção e futura
 
 ## Como funciona a extração
 
-1. O bot reúne todos os termos de busca cadastrados pelos usuários.
-2. Realiza buscas nos portais configurados.
-3. Coleta informações como:
+1. Cada usuário possui um horário próprio de execução automática configurado no sistema.
+2. No horário agendado, o bot realiza a busca utilizando apenas os termos de busca daquele usuário.
+3. Realiza buscas nos portais configurados.
+4. Coleta informações como:
    * Título da vaga
    * Empresa
    * Localização
    * Data de publicação
    * Link da vaga
-4. Remove vagas duplicadas.
-5. Filtra vagas fora do período configurado.
-6. Avalia cada vaga utilizando critérios definidos pelo usuário.
-7. Ordena os resultados pela pontuação obtida.
-8. Envia apenas as vagas compatíveis via Telegram.
+5. Remove vagas duplicadas.
+6. Filtra vagas fora do período configurado.
+7. Avalia cada vaga utilizando os critérios definidos pelo usuário.
+8. Ordena os resultados pela pontuação obtida.
+9. Envia apenas as vagas compatíveis via Telegram.
+
+**Observação:** O sistema impede execuções simultâneas. Caso uma busca manual (`/vagas`) esteja em andamento, a execução automática será ignorada, e vice-versa.
 
 ---
 
@@ -114,7 +117,7 @@ cd bot-vagas-telegram
 ```bash
 pip install -r requirements.txt
 ```
-
+ 
 ### 3. Configure as variáveis de ambiente
 
 Crie um arquivo `.env` na raiz do projeto:

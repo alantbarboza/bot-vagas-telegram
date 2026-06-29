@@ -208,17 +208,20 @@ async def verificar_comando(message: Message, tipo_chat: str):
             return
         
         case "/proxima_execucao":
-            if execucao_automatica.proxima_execucao:
+
+            proxima = execucao_automatica.proximas_execucoes.get(str(message.from_user.id))
+
+            if proxima:
                 await enviar_mensagem(
                     message.chat.id,
-                    f"Próxima execução agendada para: {execucao_automatica.proxima_execucao}"
+                    f"Próxima execução agendada para: {proxima.strftime('%d/%m/%Y às %H:%M')}"
                 )
             else:
                 await enviar_mensagem(
                     message.chat.id,
                     "O agendador ainda não foi iniciado."
                 )
-            
+
             return
     
         case "/meu_id":
