@@ -38,8 +38,8 @@ def criar_pagina(context):
         "Upgrade-Insecure-Requests": "1"
     })
 
-    page.set_default_timeout(10000)
-    page.set_default_navigation_timeout(30000)
+    page.set_default_timeout(15000)
+    page.set_default_navigation_timeout(45000)
     page.mouse.move(500, 300)
 
     return page

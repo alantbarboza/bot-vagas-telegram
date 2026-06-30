@@ -82,7 +82,8 @@
             "consultor de vendas",
             "contábil",
             "ANALISTA DE CONTAS",
-            "fiscal"
+            "fiscal",
+            "PCD"
         ]
     },
     "6267955972": {
@@ -172,7 +173,8 @@
             "mobile",
             "android",
             "ios",
-            "devops"
+            "devops",
+            "PCD"
         ]
     }
 }

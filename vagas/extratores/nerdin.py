@@ -12,8 +12,8 @@ def extrair_nerdin(page, termos_busca):
             try:
                 url = f"https://www.nerdin.com.br/vagas.php?busca={termo.replace(' ', '+')}&pagina={pagina}&filtro_home_office=1"
 
-                page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_selector(".vaga-card", timeout=10000)
+                page.goto(url, timeout=45000,  wait_until="networkidle")
+                page.wait_for_selector(".vaga-card", timeout=15000)
 
                 cards = elemento(page, ".vaga-card", todos=True)
                 total_cards = cards.count()

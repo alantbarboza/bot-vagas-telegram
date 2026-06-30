@@ -41,8 +41,8 @@ def extrair_empregos(page, termos_busca):
             url = f"https://www.empregos.com.br/vagas/{termo.replace(' ', '-')}?q={query}"
 
             try:
-                page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_selector("#job-card", timeout=10000)
+                page.goto(url, timeout=45000,  wait_until="networkidle")
+                page.wait_for_selector("#job-card", timeout=15000)
 
                 cards = elemento(page, "#job-card", todos=True)
                 total_cards = cards.count()

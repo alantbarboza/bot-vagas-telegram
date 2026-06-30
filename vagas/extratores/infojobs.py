@@ -25,8 +25,8 @@ def extrair_infojobs(page, termos_busca):
             )
             
             try:
-                page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_selector(".js_rowCard[data-href]", timeout=10000)
+                page.goto(url, timeout=45000,  wait_until="networkidle")
+                page.wait_for_selector(".js_rowCard[data-href]", timeout=15000)
 
                 cards = elemento( page, ".js_rowCard[data-href]", todos=True )
                 total_cards = cards.count()   

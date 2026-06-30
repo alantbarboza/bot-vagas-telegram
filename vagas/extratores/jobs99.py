@@ -20,8 +20,8 @@ def extrair_99jobs(page, termos_busca):
                     f"&page={pagina}"
                 )
 
-                page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_selector("a[href*='/jobs/']", timeout=10000)
+                page.goto(url, timeout=45000,  wait_until="networkidle")
+                page.wait_for_selector("a[href*='/jobs/']", timeout=15000)
 
                 cards = elemento(page, "a[href*='/jobs/']", todos=True)
                 total_cards = cards.count()

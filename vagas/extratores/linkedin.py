@@ -22,8 +22,8 @@ def extrair_linkedin(page, termos_busca):
                     f"&start={start}"
                 )
 
-                page.goto(url, timeout=45000,  wait_until="domcontentloaded")
-                page.wait_for_selector('a[href*="/jobs/view/"]', timeout=10000)
+                page.goto(url, timeout=45000,  wait_until="networkidle")
+                page.wait_for_selector('a[href*="/jobs/view/"]', timeout=15000)
 
                 cards = elemento(page, 'a[href*="/jobs/view/"]', todos=True)
                 total_cards = cards.count()

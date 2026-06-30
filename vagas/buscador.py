@@ -29,6 +29,9 @@ def buscar_vagas(termos_busca):
 
                 try:
                     page = criar_pagina(context)
+
+                    page.goto("about:blank")
+                    
                     vagas += extrator(page, termos_busca)
 
                 except Exception as e:

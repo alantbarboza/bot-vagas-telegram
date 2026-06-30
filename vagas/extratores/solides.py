@@ -22,8 +22,8 @@ def extrair_solides(page, termos_busca):
             )
 
             try:
-                page.goto(url, timeout=30000,  wait_until="domcontentloaded")
-                page.wait_for_selector('[data-cy="list-vacancies"] li', timeout=10000)
+                page.goto(url, timeout=45000,  wait_until="networkidle")
+                page.wait_for_selector('[data-cy="list-vacancies"] li', timeout=15000)
 
                 cards = elemento(page, '[data-cy="list-vacancies"] li', todos=True)
                 total_cards = cards.count()
