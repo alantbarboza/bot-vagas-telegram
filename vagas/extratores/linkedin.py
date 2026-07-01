@@ -89,6 +89,18 @@ def extrair_linkedin(page, termos_busca):
             
             except Exception as e:
                 warning(f"Erro ao acessar LinkedIn | TERMO='{termo}' | PAGINA={pagina + 1} | START={start} | ERRO={e}")
+    ##################################################
+                try:
+                    warning("=" * 80)
+                    warning(f"SITE: LINKEDIN")
+                    warning(f"URL: {page.url}")
+                    warning(f"TÍTULO: {page.title()}")
+                    warning("HTML (primeiros 5000 caracteres):")
+                    warning(page.content()[:5000])
+                    warning("=" * 80)
+                except Exception as erro_debug:
+                    warning(f"Erro ao coletar informações da página: {erro_debug} | {type(erro_debug).__name__} | {erro_debug}")
+    ##################################################
                 continue
 
     return vagas
